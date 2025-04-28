@@ -14,36 +14,63 @@ public class PersonagemRepositoryMemory implements PersonagemRepositoryPort {
 
     @Override
     public List<Personagem> listarTodos() {
+        if (personagens.isEmpty()) {
+            throw new RuntimeException("Nenhum personagem encontrado");
+        }
         return personagens;
     }
 
     @Override
     public Personagem buscarPorNome(String nome) {
-        return personagens.stream()
-                .filter(p -> p.getNome().equals(nome))
+        Personagem personagem = personagens.stream()
+                .filter(p -> p.getNome().equalsIgnoreCase(nome))
                 .findFirst()
                 .orElse(null);
+        if (personagem == null) {
+            throw new RuntimeException("Personagem com o nome '" + nome + "' não encontrado");
+        }
+        return personagem;
     }
+
 
     @Override
     public Personagem salvar(Personagem personagem) {
+        for (Personagem p : personagens) {
+            if (p.getNome().equalsIgnoreCase(personagem.getNome())) {
+                throw new RuntimeException("Personagem já existe");
+            }
+        }
         personagens.add(personagem);
         return personagem;
     }
 
+
     @Override
     public void deletar(String nome) {
-        personagens.removeIf(p -> p.getNome().equals(nome));
+        Personagem personagem = buscarPorNome(nome);
+        if (personagem != null) {
+            personagens.remove(personagem);
+        } else {
+            throw new RuntimeException("Personagem não encontrado");
+        }
     }
+
 
     @Override
     public Personagem atualizar(String nome, Personagem personagemAtualizado) {
-        for (int i = 0; i < personagens.size(); i++) {
-            if (personagens.get(i).getNome().equals(nome)) {
-                personagens.set(i, personagemAtualizado);
-                return personagemAtualizado;
-            }
+        Personagem personagemExistente = buscarPorNome(nome);
+        if (personagemExistente != null) {
+            personagemExistente.setNome(personagemAtualizado.getNome());
+            personagemExistente.setIdade(personagemAtualizado.getIdade());
+            personagemExistente.setAldeia(personagemAtualizado.getAldeia());
+            personagemExistente.setTipo(personagemAtualizado.getTipo());
+
+            return personagemExistente;
+        } else {
+            throw new RuntimeException("Personagem não encontrado para atualização!");
         }
-        return null;
     }
 }
+
+
+

@@ -24,6 +24,11 @@ public class PersonagemController {
         return personagemService.listarTodos();
     }
 
+    @GetMapping("/buscar/{nome}")
+    public Personagem buscarPorNome(@PathVariable String nome) {
+        return personagemService.buscarPorNome(nome);
+    }
+
     @PostMapping
     public Personagem criar(@RequestBody Personagem personagem) {
         return personagemService.salvar(personagem);

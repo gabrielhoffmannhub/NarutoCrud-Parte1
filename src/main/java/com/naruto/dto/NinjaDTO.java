@@ -10,5 +10,5 @@ public class NinjaDTO {
     private int idade;
     private String aldeia;
     private int chakra;
-    private String tipoDePoder;
+    private String tipoNinja;
 }
