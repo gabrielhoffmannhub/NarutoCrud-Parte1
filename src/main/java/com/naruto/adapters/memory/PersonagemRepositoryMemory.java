@@ -63,7 +63,7 @@ public class PersonagemRepositoryMemory implements PersonagemRepositoryPort {
             personagemExistente.setNome(personagemAtualizado.getNome());
             personagemExistente.setIdade(personagemAtualizado.getIdade());
             personagemExistente.setAldeia(personagemAtualizado.getAldeia());
-            personagemExistente.setTipo(personagemAtualizado.getTipo());
+            personagemExistente.setTipoNinja(personagemAtualizado.getTipoNinja());
 
             return personagemExistente;
         } else {

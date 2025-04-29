@@ -14,5 +14,5 @@ public class Personagem {
     private int idade;
     private String aldeia;
     private int chakra;
-    private TipoNinja tipo;
+    private TipoNinja tipoNinja;
 }

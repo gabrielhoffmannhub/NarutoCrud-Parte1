@@ -44,7 +44,7 @@ public class PersonagemServiceTest {
         assertEquals(16, personagem.getIdade());
         assertEquals("Konoha", personagem.getAldeia());
         assertEquals(100, personagem.getChakra());
-        assertEquals(TipoNinja.NINJUTSU, personagem.getTipo());
+        assertEquals(TipoNinja.NINJUTSU, personagem.getTipoNinja());
     }
 
     @Test
