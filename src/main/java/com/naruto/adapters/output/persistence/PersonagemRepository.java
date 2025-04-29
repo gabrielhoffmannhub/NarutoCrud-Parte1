@@ -1,4 +1,4 @@
-package com.naruto.adapters.memory;
+package com.naruto.adapters;
 
 import com.naruto.domain.model.Personagem;
 import com.naruto.ports.out.PersonagemRepositoryPort;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class PersonagemRepositoryMemory implements PersonagemRepositoryPort {
+public class PersonagemRepository implements PersonagemRepositoryPort {
 
     private final List<Personagem> personagens = new ArrayList<>();
 
