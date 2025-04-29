@@ -13,7 +13,7 @@ public class SwaggerConfig {
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
                 .group("public")
-                .packagesToScan("com.naruto.controller")
+                .packagesToScan("com.naruto.adapters.input")
                 .build();
     }
 

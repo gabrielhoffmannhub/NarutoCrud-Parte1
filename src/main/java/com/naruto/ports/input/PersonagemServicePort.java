@@ -1,4 +1,4 @@
-package com.naruto.ports.in;
+package com.naruto.ports.input;
 
 import com.naruto.domain.model.Personagem;
 import com.naruto.dto.NinjaDTO;

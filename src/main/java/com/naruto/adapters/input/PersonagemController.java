@@ -1,8 +1,8 @@
-package com.naruto.controller;
+package com.naruto.adapters.input;
 
 import com.naruto.domain.model.Personagem;
 import com.naruto.dto.NinjaDTO;
-import com.naruto.ports.in.PersonagemServicePort;
+import com.naruto.ports.input.PersonagemServicePort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

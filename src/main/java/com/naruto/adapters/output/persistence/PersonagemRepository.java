@@ -1,7 +1,7 @@
-package com.naruto.adapters;
+package com.naruto.adapters.output.persistence;
 
 import com.naruto.domain.model.Personagem;
-import com.naruto.ports.out.PersonagemRepositoryPort;
+import com.naruto.ports.output.PersonagemRepositoryPort;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

@@ -1,10 +1,9 @@
 package com.naruto.application.service;
 
-import com.naruto.application.service.PersonagemService;
 import com.naruto.domain.model.Personagem;
 import com.naruto.domain.model.TipoNinja;
 import com.naruto.dto.NinjaDTO;
-import com.naruto.ports.out.PersonagemRepositoryPort;
+import com.naruto.ports.output.PersonagemRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;

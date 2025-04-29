@@ -2,8 +2,8 @@ package com.naruto.application.service;
 
 import com.naruto.domain.model.*;
 import com.naruto.dto.NinjaDTO;
-import com.naruto.ports.in.PersonagemServicePort;
-import com.naruto.ports.out.PersonagemRepositoryPort;
+import com.naruto.ports.input.PersonagemServicePort;
+import com.naruto.ports.output.PersonagemRepositoryPort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

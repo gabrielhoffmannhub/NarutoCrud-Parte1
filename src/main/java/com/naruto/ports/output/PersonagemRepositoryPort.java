@@ -1,4 +1,4 @@
-package com.naruto.ports.out;
+package com.naruto.ports.output;
 
 import com.naruto.domain.model.Personagem;
 
