@@ -1,138 +1,303 @@
 package com.naruto.application.service;
 
-import com.naruto.domain.model.Personagem;
-import com.naruto.domain.model.TipoNinja;
+import com.naruto.domain.model.*;
 import com.naruto.dto.NinjaDTO;
 import com.naruto.ports.output.PersonagemRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class PersonagemServiceTest {
+class PersonagemServiceTest {
 
     @Mock
-    private PersonagemRepositoryPort personagemRepositoryPort;
+    private PersonagemRepositoryPort personagemRepository;
 
-    private PersonagemService personagemService;
+    @InjectMocks
+    private PersonagemService service;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        personagemService = new PersonagemService(personagemRepositoryPort);
+        service = Mockito.spy(new PersonagemService(personagemRepository));
     }
 
     @Test
-    void testCriarNinja() {
-        NinjaDTO ninjaDTO = new NinjaDTO();
-        ninjaDTO.setNome("Naruto");
-        ninjaDTO.setIdade(16);
-        ninjaDTO.setAldeia("Konoha");
-        ninjaDTO.setChakra(100);
-        ninjaDTO.setTipoNinja("Ninjutsu");
+    void criarNinja_deveRetornarPersonagemComNomeETipo() {
+        NinjaDTO dto = new NinjaDTO();
+        dto.setNome("Naruto");
+        dto.setTipoNinja("NINJUTSU");
 
-        Personagem personagem = personagemService.criarNinja(ninjaDTO);
+        Personagem p = service.criarNinja(dto);
 
-        assertNotNull(personagem);
-        assertEquals("Naruto", personagem.getNome());
-        assertEquals(16, personagem.getIdade());
-        assertEquals("Konoha", personagem.getAldeia());
-        assertEquals(100, personagem.getChakra());
-        assertEquals(TipoNinja.NINJUTSU, personagem.getTipoNinja());
+        assertEquals("Naruto", p.getNome());
+        assertEquals(TipoNinja.NINJUTSU, p.getTipoNinja());
     }
 
     @Test
-    void testListarTodos() {
-        List<Personagem> personagens = Arrays.asList(
-                new Personagem("Naruto", 16, "Konoha", 1000, TipoNinja.NINJUTSU),
-                new Personagem("Sasuke", 17, "Konoha", 100, TipoNinja.GENJUTSU)
-        );
+    void listarTodos_deveRetornarListaDoRepositorio() {
+        List<Personagem> lista = Arrays.asList(new Personagem(), new Personagem());
+        when(personagemRepository.listarTodos()).thenReturn(lista);
 
-        when(personagemRepositoryPort.listarTodos()).thenReturn(personagens);
+        List<Personagem> resultado = service.listarTodos();
 
-        List<Personagem> resultado = personagemService.listarTodos();
-
-        assertEquals(2, resultado.size());
-        assertEquals("Naruto", resultado.get(0).getNome());
-        assertEquals("Sasuke", resultado.get(1).getNome());
-
-        verify(personagemRepositoryPort, times(1)).listarTodos();
+        assertEquals(lista, resultado);
+        verify(personagemRepository).listarTodos();
     }
 
     @Test
-    void testSalvar() {
-        Personagem personagem = new Personagem("Naruto", 16, "Konoha", 1000, TipoNinja.NINJUTSU);
+    void buscarPorNome_deveRetornarPersonagem() {
+        Personagem p = new Personagem();
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(p);
 
-        when(personagemRepositoryPort.salvar(personagem)).thenReturn(personagem);
+        Personagem resultado = service.buscarPorNome("Naruto");
 
-        Personagem resultado = personagemService.salvar(personagem);
-
-        assertNotNull(resultado);
-        assertEquals("Naruto", resultado.getNome());
-
-        verify(personagemRepositoryPort, times(1)).salvar(personagem);
+        assertEquals(p, resultado);
+        verify(personagemRepository).buscarPorNome("Naruto");
     }
 
     @Test
-    void testUsarJutsu() {
-        NinjaDTO ninjaDTO = new NinjaDTO();
-        ninjaDTO.setNome("Naruto");
-        ninjaDTO.setIdade(16);
-        ninjaDTO.setAldeia("Konoha");
-        ninjaDTO.setChakra(1000);
-        ninjaDTO.setTipoNinja("Ninjutsu");
+    void salvar_deveChamarRepositorio() {
+        Personagem p = new Personagem();
+        when(personagemRepository.salvar(p)).thenReturn(p);
 
-        String resultado = personagemService.usarJutsu(ninjaDTO);
+        Personagem resultado = service.salvar(p);
 
-        assertEquals("Naruto usou um jutsu de Ninjutsu", resultado);
-
-        verify(personagemRepositoryPort, times(0)).salvar(any());
+        assertEquals(p, resultado);
+        verify(personagemRepository).salvar(p);
     }
 
     @Test
-    void testDesviar() {
-        NinjaDTO ninjaDTO = new NinjaDTO();
-        ninjaDTO.setNome("Naruto");
-        ninjaDTO.setIdade(16);
-        ninjaDTO.setAldeia("Konoha");
-        ninjaDTO.setChakra(1000);
-        ninjaDTO.setTipoNinja("Ninjutsu");
+    void deletar_deveChamarRepositorio() {
+        doNothing().when(personagemRepository).deletar("Naruto");
 
-        String resultado = personagemService.desviar(ninjaDTO);
+        service.deletar("Naruto");
 
-        assertEquals("Naruto desviou de um ataque usando Ninjutsu", resultado);
-
-        verify(personagemRepositoryPort, times(0)).salvar(any());
+        verify(personagemRepository).deletar("Naruto");
     }
 
     @Test
-    void testDeletar() {
-        String nome = "Naruto";
+    void atualizar_deveChamarRepositorio() {
+        Personagem p = new Personagem();
+        when(personagemRepository.atualizar("Naruto", p)).thenReturn(p);
 
-        doNothing().when(personagemRepositoryPort).deletar(nome);
+        Personagem resultado = service.atualizar("Naruto", p);
 
-        personagemService.deletar(nome);
-
-        verify(personagemRepositoryPort, times(1)).deletar(nome);
+        assertEquals(p, resultado);
+        verify(personagemRepository).atualizar("Naruto", p);
     }
 
     @Test
-    void testAtualizar() {
-        String nome = "Naruto";
-        Personagem personagem = new Personagem("Naruto Adulto", 35, "Konoha", 10000, TipoNinja.NINJUTSU);
+    void usarJutsu_deveRetornarMensagem() {
+        NinjaDTO dto = new NinjaDTO();
+        dto.setNome("Naruto");
 
-        when(personagemRepositoryPort.atualizar(nome, personagem)).thenReturn(personagem);
+        String msg = service.usarJutsu(dto);
 
-        Personagem resultado = personagemService.atualizar(nome, personagem);
+        assertTrue(msg.contains("Naruto está pronto para usar um jutsu"));
+    }
 
-        assertNotNull(resultado);
-        assertEquals("Naruto Adulto", resultado.getNome());
+    @Test
+    void desviar_deveRetornarMensagem() {
+        NinjaDTO dto = new NinjaDTO();
+        dto.setNome("Naruto");
 
-        verify(personagemRepositoryPort, times(1)).atualizar(nome, personagem);
+        String msg = service.desviar(dto);
+
+        assertTrue(msg.contains("Naruto está tentando desviar"));
+    }
+
+    @Test
+    void adicionarJutsu_deveAdicionarQuandoPersonagemExiste() {
+        Personagem p = Mockito.mock(Personagem.class);
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(p);
+        when(personagemRepository.atualizar(eq("Naruto"), any())).thenReturn(p);
+
+        Jutsu jutsu = new Jutsu();
+        String msg = service.adicionarJutsu("Naruto", "Rasengan", jutsu);
+
+        verify(p).adicionarJutsu("Rasengan", jutsu);
+        verify(personagemRepository).atualizar("Naruto", p);
+        assertEquals("Jutsu Rasengan adicionado ao personagem Naruto", msg);
+    }
+
+    @Test
+    void adicionarJutsu_deveRetornarMensagemSePersonagemNaoExiste() {
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(null);
+
+        String msg = service.adicionarJutsu("Naruto", "Rasengan", new Jutsu());
+
+        assertEquals("Personagem não encontrado.", msg);
+    }
+
+    @Test
+    void atacar_deveRetornarMensagemSeAtacanteOuAlvoNaoEncontrado() {
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(null);
+
+        String msg = service.atacar("Naruto", "Sasuke", "Rasengan");
+
+        assertEquals("Atacante ou alvo não encontrado.", msg);
+    }
+
+    @Test
+    void atacar_deveRetornarMensagemSeAtacanteNaoTemJutsu() {
+        Personagem atacante = mock(Personagem.class);
+        Personagem alvo = mock(Personagem.class);
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(atacante);
+        when(personagemRepository.buscarPorNome("Sasuke")).thenReturn(alvo);
+        when(atacante.getJutsus()).thenReturn(new HashMap<>());
+
+        String msg = service.atacar("Naruto", "Sasuke", "Rasengan");
+
+        assertEquals("O atacante não possui esse jutsu.", msg);
+    }
+
+    @Test
+    void atacar_deveRetornarMensagemSeChakraInsuficiente() {
+        Personagem atacante = mock(Personagem.class);
+        Personagem alvo = mock(Personagem.class);
+        Jutsu jutsu = new Jutsu();
+        jutsu.setConsumoDeChakra(100);
+        jutsu.setDano(50);
+
+        Map<String, Jutsu> jutsus = new HashMap<>();
+        jutsus.put("Rasengan", jutsu);
+
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(atacante);
+        when(personagemRepository.buscarPorNome("Sasuke")).thenReturn(alvo);
+        when(atacante.getJutsus()).thenReturn(jutsus);
+        when(atacante.getChakra()).thenReturn(50);
+
+        String msg = service.atacar("Naruto", "Sasuke", "Rasengan");
+
+        assertEquals("Chakra insuficiente para usar esse jutsu.", msg);
+    }
+
+    @Test
+    void atacar_deveRetornarMensagemDeDesvio() {
+        Personagem atacante = mock(Personagem.class);
+        Personagem alvo = mock(Personagem.class);
+        Jutsu jutsu = new Jutsu();
+        jutsu.setConsumoDeChakra(10);
+        jutsu.setDano(20);
+
+        Map<String, Jutsu> jutsus = new HashMap<>();
+        jutsus.put("Rasengan", jutsu);
+
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(atacante);
+        when(personagemRepository.buscarPorNome("Sasuke")).thenReturn(alvo);
+        when(atacante.getJutsus()).thenReturn(jutsus);
+        when(atacante.getChakra()).thenReturn(100);
+        doNothing().when(atacante).reduzirChakra(10);
+        doReturn(true).when(service).tentarDesviar();
+
+        when(alvo.getNome()).thenReturn("Sasuke");
+
+        String msg = service.atacar("Naruto", "Sasuke", "Rasengan");
+
+        assertEquals("Sasuke conseguiu desviar do jutsu Rasengan!", msg);
+    }
+
+    @Test
+    void atacar_deveRetornarMensagemDeDerrota() {
+        Personagem atacante = mock(Personagem.class);
+        Personagem alvo = mock(Personagem.class);
+        Jutsu jutsu = new Jutsu();
+        jutsu.setConsumoDeChakra(10);
+        jutsu.setDano(100);
+
+        Map<String, Jutsu> jutsus = new HashMap<>();
+        jutsus.put("Rasengan", jutsu);
+
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(atacante);
+        when(personagemRepository.buscarPorNome("Sasuke")).thenReturn(alvo);
+        when(atacante.getJutsus()).thenReturn(jutsus);
+        when(atacante.getChakra()).thenReturn(100);
+        doNothing().when(atacante).reduzirChakra(10);
+        doReturn(false).when(service).tentarDesviar();
+
+        when(alvo.getNome()).thenReturn("Sasuke");
+        doAnswer(invocation -> {
+            when(alvo.getVida()).thenReturn(0);
+            return null;
+        }).when(alvo).reduzirVida(100);
+        when(atacante.getNome()).thenReturn("Naruto");
+
+        String msg = service.atacar("Naruto", "Sasuke", "Rasengan");
+
+        assertEquals("Naruto usou Rasengan e derrotou Sasuke!", msg);
+    }
+
+    @Test
+    void atacar_deveRetornarMensagemDeDano() {
+        Personagem atacante = mock(Personagem.class);
+        Personagem alvo = mock(Personagem.class);
+        Jutsu jutsu = new Jutsu();
+        jutsu.setConsumoDeChakra(10);
+        jutsu.setDano(20);
+
+        Map<String, Jutsu> jutsus = new HashMap<>();
+        jutsus.put("Rasengan", jutsu);
+
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(atacante);
+        when(personagemRepository.buscarPorNome("Sasuke")).thenReturn(alvo);
+        when(atacante.getJutsus()).thenReturn(jutsus);
+        when(atacante.getChakra()).thenReturn(100);
+        doNothing().when(atacante).reduzirChakra(10);
+        doReturn(false).when(service).tentarDesviar();
+
+        when(alvo.getNome()).thenReturn("Sasuke");
+        doAnswer(invocation -> {
+            when(alvo.getVida()).thenReturn(50);
+            return null;
+        }).when(alvo).reduzirVida(20);
+        when(atacante.getNome()).thenReturn("Naruto");
+        when(personagemRepository.atualizar("Sasuke", alvo)).thenReturn(alvo);
+
+        String msg = service.atacar("Naruto", "Sasuke", "Rasengan");
+
+        assertEquals("Naruto usou Rasengan e causou 20 de dano em Sasuke", msg);
+    }
+
+    @Test
+    void desviarComDano_deveRetornarMensagemDeDesvio() {
+        Personagem p = mock(Personagem.class);
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(p);
+        when(p.getNome()).thenReturn("Naruto");
+        doReturn(true).when(service).tentarDesviar();
+
+        String msg = service.desviar("Naruto", 30);
+
+        assertEquals("Naruto conseguiu desviar do ataque!", msg);
+    }
+
+    @Test
+    void desviarComDano_deveRetornarMensagemDeDano() {
+        Personagem p = mock(Personagem.class);
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(p);
+        when(p.getNome()).thenReturn("Naruto");
+        doReturn(false).when(service).tentarDesviar();
+        doAnswer(invocation -> {
+            when(p.getVida()).thenReturn(70);
+            return null;
+        }).when(p).reduzirVida(30);
+        when(personagemRepository.atualizar("Naruto", p)).thenReturn(p);
+
+        String msg = service.desviar("Naruto", 30);
+
+        assertEquals("Naruto falhou ao desviar e perdeu 30 de vida.", msg);
+    }
+
+    @Test
+    void desviarComDano_deveRetornarMensagemSePersonagemNaoExiste() {
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(null);
+
+        String msg = service.desviar("Naruto", 30);
+
+        assertEquals("Personagem não encontrado.", msg);
     }
 }

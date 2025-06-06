@@ -1,5 +1,6 @@
 package com.naruto.ports.input;
 
+import com.naruto.domain.model.Jutsu;
 import com.naruto.domain.model.Personagem;
 import com.naruto.dto.NinjaDTO;
 
@@ -18,5 +19,14 @@ public interface PersonagemServicePort {
     void deletar(String nome);
 
     String usarJutsu(NinjaDTO ninjaDTO);
+
     String desviar(NinjaDTO ninjaDTO);
+
+    Personagem criarNinja(NinjaDTO ninjaDTO);
+
+    String adicionarJutsu(String nomePersonagem, String nomeJutsu, Jutsu jutsu);
+
+    String atacar(String nomeAtacante, String nomeAlvo, String nomeJutsu);
+
+    String desviar(String nomePersonagem, int dano);
 }

@@ -1,5 +1,6 @@
 package com.naruto.adapters.input;
 
+import com.naruto.domain.model.Jutsu;
 import com.naruto.domain.model.Personagem;
 import com.naruto.dto.NinjaDTO;
 import com.naruto.ports.input.PersonagemServicePort;
@@ -24,13 +25,14 @@ public class PersonagemController {
         return personagemService.listarTodos();
     }
 
-    @GetMapping("/buscar/{nome}")
+    @GetMapping("/{nome}")
     public Personagem buscarPorNome(@PathVariable String nome) {
         return personagemService.buscarPorNome(nome);
     }
 
     @PostMapping
-    public Personagem criar(@RequestBody Personagem personagem) {
+    public Personagem criar(@RequestBody NinjaDTO ninjaDTO) {
+        Personagem personagem = personagemService.criarNinja(ninjaDTO);
         return personagemService.salvar(personagem);
     }
 
@@ -44,6 +46,16 @@ public class PersonagemController {
         return personagemService.atualizar(nome, personagem);
     }
 
+    @PostMapping("/{nome}/adicionar-jutsu")
+    public String adicionarJutsu(@PathVariable String nome, @RequestParam String nomeJutsu, @RequestBody Jutsu jutsu) {
+        return personagemService.adicionarJutsu(nome, nomeJutsu, jutsu);
+    }
+
+    @PostMapping("/atacar")
+    public String atacar(@RequestParam String nomeAtacante, @RequestParam String nomeAlvo, @RequestParam String nomeJutsu) {
+        return personagemService.atacar(nomeAtacante, nomeAlvo, nomeJutsu);
+    }
+
     @PostMapping("/usar-jutsu")
     public String usarJutsu(@RequestBody NinjaDTO ninjaDTO) {
         return personagemService.usarJutsu(ninjaDTO);
@@ -52,5 +64,10 @@ public class PersonagemController {
     @PostMapping("/desviar")
     public String desviar(@RequestBody NinjaDTO ninjaDTO) {
         return personagemService.desviar(ninjaDTO);
+    }
+
+    @PostMapping("/{nome}/desviar")
+    public String desviarComDano(@PathVariable String nome, @RequestParam int dano) {
+        return personagemService.desviar(nome, dano);
     }
 }
