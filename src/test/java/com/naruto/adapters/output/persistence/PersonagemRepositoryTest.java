@@ -2,13 +2,16 @@ package com.naruto.adapters.output.persistence;
 
 import com.naruto.domain.model.Personagem;
 import com.naruto.domain.model.TipoNinja;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import java.util.HashMap;
+import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
+@SpringBootTest
 class PersonagemRepositoryTest {
 
     private PersonagemRepository repository;
@@ -16,6 +19,11 @@ class PersonagemRepositoryTest {
     @BeforeEach
     void setUp() {
         repository = new PersonagemRepository();
+    }
+
+    @AfterEach
+    void tearDown() {
+
     }
 
     private Personagem novoPersonagem(String nome) {
@@ -29,93 +37,68 @@ class PersonagemRepositoryTest {
     }
 
     @Test
-    void listarTodos_deveRetornarListaQuandoNaoVazia() {
-        Personagem p = novoPersonagem("Naruto");
-        repository.salvar(p);
+    void salvar_e_buscarPorNome() {
+        Personagem naruto = novoPersonagem("Naruto");
+        repository.salvar(naruto);
+
+        Personagem encontrado = repository.buscarPorNome("Naruto");
+        assertEquals("Naruto", encontrado.getNome());
+        assertEquals(TipoNinja.NINJUTSU, encontrado.getTipoNinja());
+    }
+
+    @Test
+    void listarTodos() {
+        Personagem naruto = novoPersonagem("Naruto");
+        Personagem sasuke = novoPersonagem("Sasuke");
+        repository.salvar(naruto);
+        repository.salvar(sasuke);
 
         List<Personagem> lista = repository.listarTodos();
-
-        assertEquals(1, lista.size());
-        assertEquals("Naruto", lista.get(0).getNome());
+        assertEquals(2, lista.size());
     }
 
     @Test
-    void listarTodos_deveLancarExcecaoQuandoVazia() {
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> repository.listarTodos());
-        assertEquals("Nenhum personagem encontrado", ex.getMessage());
+    void buscarPorNome_retornaNullSeNaoEncontrar() {
+        Personagem resultado = repository.buscarPorNome("Inexistente");
+        assertNull(resultado);
     }
 
     @Test
-    void buscarPorNome_deveRetornarPersonagemExistente() {
-        Personagem p = novoPersonagem("Sasuke");
-        repository.salvar(p);
-
-        Personagem encontrado = repository.buscarPorNome("Sasuke");
-
-        assertNotNull(encontrado);
-        assertEquals("Sasuke", encontrado.getNome());
-    }
-
-    @Test
-    void buscarPorNome_deveLancarExcecaoSeNaoEncontrar() {
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> repository.buscarPorNome("Inexistente"));
-        assertTrue(ex.getMessage().contains("Personagem com o nome Inexistente não encontrado"));
-    }
-
-    @Test
-    void salvar_deveAdicionarPersonagemNovo() {
-        Personagem p = novoPersonagem("Kakashi");
-        Personagem salvo = repository.salvar(p);
-
-        assertEquals(p, salvo);
-        assertEquals("Kakashi", repository.buscarPorNome("Kakashi").getNome());
-    }
-
-    @Test
-    void salvar_deveLancarExcecaoSePersonagemJaExiste() {
-        Personagem p = novoPersonagem("Naruto");
-        repository.salvar(p);
-
-        Personagem duplicado = novoPersonagem("Naruto");
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> repository.salvar(duplicado));
-        assertEquals("Personagem já existe", ex.getMessage());
-    }
-
-    @Test
-    void deletar_deveRemoverPersonagemExistente() {
-        Personagem p = novoPersonagem("Sakura");
-        repository.salvar(p);
+    void deletar_removePersonagem() {
+        Personagem sakura = novoPersonagem("Sakura");
+        repository.salvar(sakura);
 
         repository.deletar("Sakura");
-
-        assertThrows(RuntimeException.class, () -> repository.buscarPorNome("Sakura"));
+        assertNull(repository.buscarPorNome("Sakura"));
     }
 
     @Test
-    void deletar_deveLancarExcecaoSeNaoEncontrar() {
-        assertThrows(RuntimeException.class, () -> repository.deletar("Inexistente"));
+    void deletar_naoFazNadaSeNaoExistir() {
+        repository.deletar("NaoExiste");
+
     }
 
     @Test
-    void atualizar_deveAlterarDadosDoPersonagem() {
-        Personagem p = novoPersonagem("Shikamaru");
-        repository.salvar(p);
+    void atualizar_alteraDadosDoPersonagem() {
+        Personagem shikamaru = novoPersonagem("Shikamaru");
+        repository.salvar(shikamaru);
 
         Personagem atualizado = novoPersonagem("Shikamaru");
-        atualizado.setTipoNinja(TipoNinja.NINJUTSU); 
+        atualizado.setTipoNinja(TipoNinja.NINJUTSU);
         atualizado.setVida(80);
-        atualizado.setChakra(90);
+        atualizado.setChakra(50);
 
         Personagem resultado = repository.atualizar("Shikamaru", atualizado);
 
         assertEquals(TipoNinja.NINJUTSU, resultado.getTipoNinja());
         assertEquals(80, resultado.getVida());
-        assertEquals(90, resultado.getChakra());
+        assertEquals(50, resultado.getChakra());
     }
 
     @Test
-    void atualizar_deveLancarExcecaoSeNaoEncontrar() {
+    void atualizar_retornaNullSeNaoEncontrar() {
         Personagem atualizado = novoPersonagem("NaoExiste");
-        assertThrows(RuntimeException.class, () -> repository.atualizar("NaoExiste", atualizado));
+        Personagem resultado = repository.atualizar("NaoExiste", atualizado);
+        assertNull(resultado);
     }
 }

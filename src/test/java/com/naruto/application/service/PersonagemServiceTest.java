@@ -1,16 +1,30 @@
 package com.naruto.application.service;
 
-import com.naruto.domain.model.*;
+import com.naruto.domain.model.Jutsu;
+import com.naruto.domain.model.Personagem;
+import com.naruto.domain.model.TipoNinja;
 import com.naruto.dto.NinjaDTO;
 import com.naruto.ports.output.PersonagemRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
-
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class PersonagemServiceTest {
 
@@ -73,6 +87,7 @@ class PersonagemServiceTest {
 
     @Test
     void deletar_deveChamarRepositorio() {
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(new Personagem());
         doNothing().when(personagemRepository).deletar("Naruto");
 
         service.deletar("Naruto");
@@ -83,6 +98,7 @@ class PersonagemServiceTest {
     @Test
     void atualizar_deveChamarRepositorio() {
         Personagem p = new Personagem();
+        when(personagemRepository.buscarPorNome("Naruto")).thenReturn(p);
         when(personagemRepository.atualizar("Naruto", p)).thenReturn(p);
 
         Personagem resultado = service.atualizar("Naruto", p);

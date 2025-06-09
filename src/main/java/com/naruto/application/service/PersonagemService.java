@@ -1,12 +1,13 @@
 package com.naruto.application.service;
 
-import com.naruto.domain.model.*;
+import com.naruto.domain.model.Jutsu;
+import com.naruto.domain.model.Personagem;
+import com.naruto.domain.model.TipoNinja;
 import com.naruto.dto.NinjaDTO;
 import com.naruto.ports.input.PersonagemServicePort;
 import com.naruto.ports.output.PersonagemRepositoryPort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Random;
 
@@ -27,26 +28,46 @@ public class PersonagemService implements PersonagemServicePort {
 
     @Override
     public List<Personagem> listarTodos() {
-        return personagemRepository.listarTodos();
+        List<Personagem> lista = personagemRepository.listarTodos();
+        if (lista == null || lista.isEmpty()) {
+            throw new RuntimeException("Nenhum personagem encontrado");
+        }
+        return lista;
     }
 
     @Override
     public Personagem buscarPorNome(String nome) {
-        return personagemRepository.buscarPorNome(nome);
+        Personagem personagem = personagemRepository.buscarPorNome(nome);
+        if (personagem == null) {
+            throw new RuntimeException("Personagem com o nome " + nome + " não encontrado");
+        }
+        return personagem;
     }
 
     @Override
     public Personagem salvar(Personagem personagem) {
+        Personagem existente = personagemRepository.buscarPorNome(personagem.getNome());
+        if (existente != null) {
+            throw new RuntimeException("Personagem já existe");
+        }
         return personagemRepository.salvar(personagem);
     }
 
     @Override
     public void deletar(String nome) {
+        Personagem personagem = personagemRepository.buscarPorNome(nome);
+        if (personagem == null) {
+            throw new RuntimeException("Personagem com o nome " + nome + " não encontrado");
+        }
         personagemRepository.deletar(nome);
     }
 
     @Override
     public Personagem atualizar(String nome, Personagem personagem) {
+        Personagem existente = personagemRepository.buscarPorNome(nome);
+        if (existente == null) {
+            throw new RuntimeException("Personagem com o nome " + nome + " não encontrado");
+        }
         return personagemRepository.atualizar(nome, personagem);
     }
 
@@ -63,7 +84,7 @@ public class PersonagemService implements PersonagemServicePort {
     public String adicionarJutsu(String nomePersonagem, String nomeJutsu, Jutsu jutsu) {
         Personagem personagem = personagemRepository.buscarPorNome(nomePersonagem);
         if (personagem == null) {
-            return "Personagem não encontrado.";
+            throw new RuntimeException("Personagem com o nome " + nomePersonagem + " não encontrado");
         }
         personagem.adicionarJutsu(nomeJutsu, jutsu);
         personagemRepository.atualizar(nomePersonagem, personagem);
@@ -75,17 +96,17 @@ public class PersonagemService implements PersonagemServicePort {
         Personagem alvo = personagemRepository.buscarPorNome(nomeAlvo);
 
         if (atacante == null || alvo == null) {
-            return "Atacante ou alvo não encontrado.";
+            throw new RuntimeException("Atacante ou alvo não encontrado.");
         }
 
         if (!atacante.getJutsus().containsKey(nomeJutsu)) {
-            return "O atacante não possui esse jutsu.";
+            throw new RuntimeException("O atacante não possui esse jutsu.");
         }
 
         Jutsu jutsu = atacante.getJutsus().get(nomeJutsu);
 
         if (atacante.getChakra() < jutsu.getConsumoDeChakra()) {
-            return "Chakra insuficiente para usar esse jutsu.";
+            throw new RuntimeException("Chakra insuficiente para usar esse jutsu.");
         }
 
         atacante.reduzirChakra(jutsu.getConsumoDeChakra());
@@ -106,7 +127,7 @@ public class PersonagemService implements PersonagemServicePort {
     public String desviar(String nomePersonagem, int dano) {
         Personagem personagem = personagemRepository.buscarPorNome(nomePersonagem);
         if (personagem == null) {
-            return "Personagem não encontrado.";
+            throw new RuntimeException("Personagem com o nome " + nomePersonagem + " não encontrado");
         }
 
         boolean desviou = tentarDesviar();
